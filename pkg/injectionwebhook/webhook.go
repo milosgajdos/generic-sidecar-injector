@@ -448,10 +448,9 @@ func (whsvr *WebhookServer) createPatches(pod *corev1.Pod, mutationConfig *mutat
 	patches = append(patches, addContainers(pod.Spec.InitContainers, initsAfter, "/spec/initContainers")...)
 	pod.Spec.InitContainers = append(pod.Spec.InitContainers, initsAfter...)
 
-	// Inject sidecar containers if we're NOT looking at a Pod OR this injection runs sidecars for Jobs
-	// A long-running sidecar Container can cause the Job to never complete,
-	// so do not inject sidecars into these Pods unless it is explicity overridden
-	injectSidecars := !isShortRunningWorkload(pod) || mutationConfig.ImplementsSidecarLifecycle
+	// FIXME: this is a hack to make injecting sidecars work for all pods not just long running ones
+	// we are aware of the downsides, but we need this functionality to make this work for all of our workloads
+	injectSidecars := true
 
 	if injectSidecars {
 		// Add sidecar Containers, keep the pod consistent with the patch
